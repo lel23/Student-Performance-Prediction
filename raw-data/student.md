@@ -1,8 +1,9 @@
 # Attributes for both student-mat.csv (Math course) and student-por.csv (Portuguese language course) datasets:
-1. school
-  * student's school (binary: "GP" - Gabriel Pereira or "MS" - Mousinho da Silveira)
+
+1. school 
+    * student's school (binary: "GP" - Gabriel Pereira or "MS" - Mousinho da Silveira)
   
-1. sex 
+2. sex 
     * student's sex (binary: "F" - female or "M" - male)
     
 1. age
