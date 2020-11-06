@@ -21,7 +21,6 @@ from matplotlib.colors import ListedColormap
 
 df = pd.read_csv('student-mat-edited.csv')
 
-
 df['school'] = df['school'].replace(['GP', 'MS'], [1, 0])
 df['sex'] = df['sex'].replace(['M', 'F'], [1, 0])
 df['address'] = df['address'].replace(['U', 'R'], [1, 0])
@@ -50,7 +49,6 @@ feat_labels = X.columns
 
 
 ##PLOTTING##
-
 def plot_decision_regions(X, y, classifier, resolution = 0.02):
     
     colors = ['r', 'b', 'g', 'y', 'cyan']
@@ -75,9 +73,6 @@ def plot_decision_regions(X, y, classifier, resolution = 0.02):
                     edgecolor = 'black',
                     marker = markers[idx],
                     label = cl)
-    
-     
-    
 
 ############
 
@@ -161,52 +156,67 @@ plt.tight_layout()
 plt.show()
 '''
 
-
 #############
+"""
+PCA from eda.py
 
-#random forest feature selection
-
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3,
+                                                    stratify=y,
+                                                    random_state=0)
 stdsc = StandardScaler()
-X = stdsc.fit_transform(X)
+X_train_std = stdsc.fit_transform(X_train)
+X_test_std = stdsc.transform(X_test)
 
-forest = RandomForestClassifier(n_estimators=500,
-                                random_state=1)
+cov_mat = np.cov(X_train_std.T)
+eigen_vals, eigen_vecs = np.linalg.eig(cov_mat)
 
-forest.fit(X, y)
-importances = forest.feature_importances_
+# Make a list of (eigenvalue, eigenvector) tuples
+eigen_pairs = [(np.abs(eigen_vals[i]), eigen_vecs[:, i])
+               for i in range(len(eigen_vals))]
 
-indices = np.argsort(importances)[::-1]
+# Sort the (eigenvalue, eigenvector) tuples from high to low
+eigen_pairs.sort(key=lambda k: k[0], reverse=True)
 
-for f in range(X.shape[1]):
-    print("%2d) %-*s %f" % (f + 1, 30, 
-                            feat_labels[indices[f]], 
-                            importances[indices[f]]))
 
-plt.title('Feature Importance')
-plt.bar(range(X.shape[1]), 
-        importances[indices],
-        align='center')
+w = np.hstack((eigen_pairs[0][1][:, np.newaxis],
+               eigen_pairs[1][1][:, np.newaxis]))
 
-plt.xticks(range(X.shape[1]), 
-           feat_labels[indices], rotation=90)
-plt.xlim([-1, X.shape[1]])
+
+# plt.savefig('images/05_03.png', dpi=300)
+tot = sum(eigen_vals)
+var_exp = [(i / tot) for i in sorted(eigen_vals, reverse=True)]
+cum_var_exp = np.cumsum(var_exp)
+
+plt.bar(range(1, len(df.columns)), var_exp, alpha=0.5, align='center',
+        label='Individual explained variance')
+plt.step(range(1, len(df.columns)), cum_var_exp, where='mid',
+         label='Cumulative explained variance')
+plt.ylabel('Explained variance ratio')
+plt.xlabel('Principal component index')
+plt.legend(loc='best')
 plt.tight_layout()
-plt.savefig("rf_selection.png")
+# plt.savefig('images/05_02.png', dpi=300)
 plt.show()
+#print('Matrix W:\n', w)
 
-sfm = SelectFromModel(forest, prefit=True)
-X_selected = sfm.transform(X)
-print('Number of features that meet this threshold criterion:', 
-      X_selected.shape[1])
-print("Threshold %f" % np.mean(importances))
+X_train_std[0].dot(w)
+
+X_train_pca = X_train_std.dot(w)
+colors = ['r', 'b', 'g', 'y']
+markers = ['s', 'x', 'o', '^']
+
+for l, c, m in zip(np.unique(y_train), colors, markers):
+    plt.scatter(X_train_pca[y_train == l, 0], 
+                X_train_pca[y_train == l, 1], 
+                c=c, label=l, marker=m)
+
+plt.xlabel('PC 1')
+plt.ylabel('PC 2')
+plt.legend(loc='lower left')
+plt.tight_layout()
+# plt.savefig('images/05_03.png', dpi=300)
+plt.show()
+"""
 
 
-# Now, let's print the  features that met the threshold criterion for feature selection that we set earlier (note that this code snippet does not appear in the actual book but was added to this notebook later for illustrative purposes):
 
-for f in range(X_selected.shape[1]):
-    print("%2d) %-*s %f" % (f + 1, 30, 
-                            feat_labels[indices[f]], 
-                            importances[indices[f]]))
-
-#df.info()
-#print(df.head())
