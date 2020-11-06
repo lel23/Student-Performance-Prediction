@@ -103,6 +103,6 @@ for f in range(X_selected.shape[1]):
 
 cm = np.corrcoef(df.values.T)
 hm = heatmap(cm, row_names=cols, column_names=cols)
-plt.tight_layout()
+#plt.tight_layout()
 plt.show()
 
