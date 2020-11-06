@@ -14,6 +14,7 @@ from sklearn.ensemble import RandomForestClassifier
 from sklearn.preprocessing import StandardScaler
 from sklearn.feature_selection import SelectFromModel
 import sys
+from sklearn.model_selection import train_test_split
 
 
 
@@ -45,6 +46,51 @@ df = df.drop(index=1, columns=['G1', 'G2', 'G3'])
 X = df[[i for i in list(df.columns) if i != 'scores']]
 y = df['scores']
 feat_labels = X.columns
+
+#PCA#########
+
+X_train, X_test, y_train, y_test =     train_test_split(X, y, test_size=0.3, 
+                     stratify=y,
+                     random_state=0)
+
+
+stdsc = StandardScaler()
+X_train_std = stdsc.fit_transform(X_train)
+X_test_std = stdsc.transform(X_test)
+
+cov_mat = np.cov(X_train_std.T)
+eigen_vals, eigen_vecs = np.linalg.eig(cov_mat)
+
+# Make a list of (eigenvalue, eigenvector) tuples
+eigen_pairs = [(np.abs(eigen_vals[i]), eigen_vecs[:, i])
+               for i in range(len(eigen_vals))]
+
+# Sort the (eigenvalue, eigenvector) tuples from high to low
+eigen_pairs.sort(key=lambda k: k[0], reverse=True)
+
+
+w = np.hstack((eigen_pairs[0][1][:, np.newaxis],
+               eigen_pairs[1][1][:, np.newaxis]))
+
+
+# plt.savefig('images/05_03.png', dpi=300)
+tot = sum(eigen_vals)
+var_exp = [(i / tot) for i in sorted(eigen_vals, reverse=True)]
+cum_var_exp = np.cumsum(var_exp)
+
+plt.bar(range(1, len(df.columns)), var_exp, alpha=0.5, align='center',
+        label='Individual explained variance')
+plt.step(range(1, len(df.columns)), cum_var_exp, where='mid',
+         label='Cumulative explained variance')
+plt.ylabel('Explained variance ratio')
+plt.xlabel('Principal component index')
+plt.legend(loc='best')
+plt.tight_layout()
+# plt.savefig('images/05_02.png', dpi=300)
+plt.show()
+#print('Matrix W:\n', w)
+
+#############
 
 #random forest feature selection
 
