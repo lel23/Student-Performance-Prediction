@@ -94,8 +94,8 @@ plt.show()
 X_train_std[0].dot(w)
 
 X_train_pca = X_train_std.dot(w)
-colors = ['r', 'b', 'g']
-markers = ['s', 'x', 'o']
+colors = ['r', 'b', 'g', 'y']
+markers = ['s', 'x', 'o', '^']
 
 for l, c, m in zip(np.unique(y_train), colors, markers):
     plt.scatter(X_train_pca[y_train == l, 0], 
