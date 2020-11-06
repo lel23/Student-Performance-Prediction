@@ -25,7 +25,7 @@ df['sex'] = df['sex'].replace(['M', 'F'], [1, 0])
 df['address'] = df['address'].replace(['U', 'R'], [1, 0])
 df['famsize'] = df['famsize'].replace(['GT3', 'LE3'], [1, 0])
 df['Pstatus'] = df['Pstatus'].replace(['T', 'A'], [1, 0])
-df = df.replace(to_replace={['yes', 'GP']:1, ['no', 'MS']:0})
+df = df.replace(to_replace={['yes',:1, 'no':0})
 
 df = pd.get_dummies(df, prefix= ['Mjob', 'Fjob', 'reason', 'guardian'])
 
