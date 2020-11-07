@@ -45,14 +45,6 @@ X = df[[i for i in list(df.columns) if i != 'scores']]
 y = df['scores']
 feat_labels = X.columns
 
-cols = ['school','sex','age','address','famsize','Pstatus','Medu','Fedu',
-        'at_home','health','other','services','teacher','teacher','other',
-        'services','health','teacher','coruse','other','home','reputation',
-        'mother','father','other','traveltime','studytime','failures',
-        'schoolsup','famsup','paid','activities','nursery','higher','internet',
-        'romantic','famrel','freetime','goout','Dalc','Walc','health',
-        'absences','scores']
-
 """
 Random Forest Feature Selection
 """
@@ -92,17 +84,17 @@ print("Threshold %f" % np.mean(importances))
 
 
 # Now, let's print the  features that met the threshold criterion for feature selection that we set earlier (note that this code snippet does not appear in the actual book but was added to this notebook later for illustrative purposes):
-
+cols = []
 for f in range(X_selected.shape[1]):
+    cols.append(feat_labels[indices[f]])    
     print("%2d) %-*s %f" % (f + 1, 30, 
                             feat_labels[indices[f]], 
                             importances[indices[f]]))
 
-#df.info()
-#print(df.head())
 
-cm = np.corrcoef(df.values.T)
+#Correlation heatmap
+cols.append("scores")
+cm = np.corrcoef(df[cols].values.T)
 hm = heatmap(cm, row_names=cols, column_names=cols)
-#plt.tight_layout()
 plt.show()
 
