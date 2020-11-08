@@ -17,7 +17,7 @@ Consult raw-data/student.md for all of the descriptions and names of the feature
 
 ## Feature Transformation
 
-We used the last three columns as the target features. These last three columns - G1, G2, and G3 - represent the student's first period score, second period score, and final score, respectively. We decided to compile these scores together by averaging the three scores for to create a singular target feature.
+We used the last three columns to create a scores column, which is the target variable. These last three columns - G1, G2, and G3 - represent the student's first period score, second period score, and final score, respectively. We decided to compile these scores together by averaging the three scores and assigning those values according to the letter grades mentioned in the paper. We ended up mapping these ordinal values into integers. 
 
 We also decided to binarize the following features:
 * school
@@ -25,8 +25,16 @@ We also decided to binarize the following features:
 * address
 * famsize
 * Pstatus
+* schoolsup
+* famsup
+* activities
+* paid 
+* internet
+* nursery
+* higher
+* romantic
 
-An example of the reason we decided to binzarize these features was to allow for easy processing. For example, given a student with a 0 (i.e. false) in the sex feature, we and the program can determine the since the male feature is false, the student must be female, and vice versa. In other words, if a value for a feature is false, then it is the other variable that is defined within that feature; if the value is true, then the feature is defined as that value.
+The reason we decided to binarize these features was to allow for easy processing since these features contained two values each. For example, 'male' were assigned 1 while 'female' were replaced by 0 in the sex feature. Moreover, all the features that contained 'yes' and 'no' were replaced by 1 and 0 respectively.
 
 We decided against using a one-hot-encoding vector for these features because doing so may increase the processing time and the complexity of finding the correlations between features (due to all the new columns that will be created).
 
