@@ -116,7 +116,8 @@ class SBS():
         score = self.scoring(y_test, y_pred)
         return score
 
-svm = SVC(C=1, kernel='linear')
+#(Sam) I used SVM for the estimator because I am working on the SVM implementation, but I recommend using your type of model before running this
+svm = SVC(C=10, kernel='rbf', gamma=.1)
 
 # selecting features
 
