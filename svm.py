@@ -109,8 +109,8 @@ X_test_kpca = scikit_kpca.fit_transform(X_test_std)
 
 
 norm = Normalizer()
-X_train_norm = norm.fit_transform(X_train[rf_features])
-X_test_norm = norm.transform(X_test[rf_features])
+X_train_norm = norm.fit_transform(X_train)
+X_test_norm = norm.transform(X_test)
 
 
 lda = LDA(n_components=3)
@@ -206,5 +206,5 @@ for name, features in zip(["RF", "SBS"], [rf_features, sbs_features]):
     plt.xlabel('Number of Features Used')
     plt.ylabel('Score')
     plt.legend()
-    plt.savefig(name+"_fs_metrics.png")
+    plt.savefig(name+"_fs_metrics_svm.png")
     plt.show()
