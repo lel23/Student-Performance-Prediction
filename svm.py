@@ -156,7 +156,7 @@ scores = cross_val_score(gs, X_train, y_train,
 print("\n\nCV Accuracy: %.3f +/- %.3f" % (np.mean(scores), np.std(scores)))
 
 
-Hyper parameters determined from previous grid search
+# Hyper parameters determined from previous grid search
 svm = SVC(C=10, kernel='rbf', gamma=.1)
 
 #Calculate accuracy, precision, recall, and f1-score using each RF and SBS feature selection
