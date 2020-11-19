@@ -102,8 +102,8 @@ X_test_lda = lda.transform(X_test_norm)
 # Grid search to determine which hyper parameters are best
 param_range = [0.0001, 0.001, 0.01, 0.1, 1.0, 10.0, 25, 50, 75, 100.0, 1000.0]
 solvers = ['newton-cg', 'sag', 'saga', 'lbfgs']
-param_grid = [{'penalty':['l2'], 'C':param_range, 'solver':['newton-cg', 'sag', 'saga', 'lbfgs', 'liblinear']},
-              {'penalty':['none'], 'solver':['newton-cg', 'sag', 'saga', 'lbfgs']}]
+param_grid = [{'penalty':['l2'], 'C':param_range, 'solver':solvers + ['liblinear']},
+              {'penalty':['none'], 'solver':solvers}]
 
 gs = GridSearchCV(estimator=LogisticRegression(class_weight='balanced', max_iter=10000), 
                   param_grid=param_grid,
