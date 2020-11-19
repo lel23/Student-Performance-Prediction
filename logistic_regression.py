@@ -90,8 +90,8 @@ X_test_kpca = scikit_kpca.fit_transform(X_test_std)
 #LDA
 #normalize the dataset before performing LDA   
 norm = Normalizer()
-X_train_norm = norm.fit_transform(X_train[rf_features])
-X_test_norm = norm.transform(X_test[rf_features])
+X_train_norm = norm.fit_transform(X_train)
+X_test_norm = norm.transform(X_test)
 
 lda = LDA(n_components=3)
 X_train_lda = lda.fit_transform(X_train_norm, y_train)
@@ -101,10 +101,11 @@ X_test_lda = lda.transform(X_test_norm)
 
 # Grid search to determine which hyper parameters are best
 param_range = [0.0001, 0.001, 0.01, 0.1, 1.0, 10.0, 25, 50, 75, 100.0, 1000.0]
+solvers = ['newton-cg', 'sag', 'saga', 'lbfgs']
+param_grid = [{'penalty':['l2'], 'C':param_range, 'solver':['newton-cg', 'sag', 'saga', 'lbfgs', 'liblinear']},
+              {'penalty':['none'], 'solver':['newton-cg', 'sag', 'saga', 'lbfgs']}]
 
-param_grid = [{'penalty':['l1','l2'], 'C':param_range}]
-
-gs = GridSearchCV(estimator=LogisticRegression(class_weight='balanced'), 
+gs = GridSearchCV(estimator=LogisticRegression(class_weight='balanced', max_iter=10000), 
                   param_grid=param_grid,
                   scoring='accuracy',
                   refit=True,
@@ -118,7 +119,8 @@ for X_train_gs, name in zip([X_train_std, X_train_lda, X_train_pca, X_train_kpca
     print("Accuracy:", gs.best_score_)
     print("Parameters:", gs.best_params_)
 
-gs = GridSearchCV(estimator=LogisticRegression(class_weight='balanced'),
+
+gs = GridSearchCV(estimator=LogisticRegression(class_weight='balanced', max_iter=1000),
                 param_grid=param_grid,
                 scoring='accuracy',
                 cv=2)
@@ -127,10 +129,10 @@ scores = cross_val_score(gs, X_train, y_train,
 print("\n\nCV Accuracy: %.3f +/- %.3f" % (np.mean(scores), np.std(scores)))
 
 # Hyper parameters determined from previous grid search
-lr = LogisticRegression(penalty='l2', C=1, solver='lbfgs')
+lr = LogisticRegression(penalty='l2', C=.001, solver='newton-cg', max_iter=1000)
 
 #Calculate accuracy, precision, recall, and f1-score using each RF and SBS feature selection
-num_features = list(range(2, 44))
+num_features = list(range(3, 44))
 for name, features in zip(["RF", "SBS"], [rf_features, sbs_features]):
     print("\n\n" + name + " Feature Selection")
     accuracy_list = []
@@ -143,13 +145,16 @@ for name, features in zip(["RF", "SBS"], [rf_features, sbs_features]):
         X_train_new = X_train[X_train.columns.intersection(features[:num])]
         X_test_new = X_test[X_test.columns.intersection(features[:num])]
        
-        X_train_std = stdsc.fit_transform(X_train_new)
-        X_test_std = stdsc.transform(X_test_new)
+        X_train_norm = norm.fit_transform(X_train_new)
+        X_test_norm = norm.transform(X_test_new)
+
+        X_train_lda = lda.fit_transform(X_train_norm, y_train)
+        X_test_lda = lda.transform(X_test_norm)
 
         print("\n\nNumber of features:", num)
 
-        lr.fit(X_train_std, y_train)
-        y_pred = lr.predict(X_test_std)
+        lr.fit(X_train_lda, y_train)
+        y_pred = lr.predict(X_test_lda)
 
         accuracy = accuracy_score(y_pred, y_test)
         precision = precision_score(y_pred, y_test, average='weighted')
@@ -176,5 +181,5 @@ for name, features in zip(["RF", "SBS"], [rf_features, sbs_features]):
     plt.xlabel('Number of Features Used')
     plt.ylabel('Score')
     plt.legend()
-    plt.savefig(name+"_fs_metrics.png")
+    plt.savefig(name+"_fs_metrics_logreg.png")
     plt.show()
