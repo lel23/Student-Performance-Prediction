@@ -156,16 +156,16 @@ scores = cross_val_score(gs, X_train, y_train,
 
 print("\n\nCV Accuracy: %.3f +/- %.3f" % (np.mean(scores), np.std(scores)))
 
-'''
+
 # Hyper parameters determined from previous grid search
-tree = DecisionTreeClassifier(C=10, kernel='rbf', gamma=.1)
+tree = DecisionTreeClassifier(criterion  = 'gini', max_depth = 6, random_state = 8)
 
 #Calculate accuracy, precision, recall, and f1-score using each RF and SBS feature selection
 num_features = list(range(2, 44))
 for name, features in zip(["RF", "SBS"], [rf_features, sbs_features]):
     print("\n\n" + name + " Feature Selection")
     accuracy_list = []
-    precision_list = []
+    precision_list = [] 
     recall_list = []
     f1_list = []
 
@@ -179,8 +179,8 @@ for name, features in zip(["RF", "SBS"], [rf_features, sbs_features]):
 
         print("\n\nNumber of features:", num)
 
-        svm.fit(X_train_std, y_train)
-        y_pred = svm.predict(X_test_std)
+        tree.fit(X_train_std, y_train)
+        y_pred = tree.predict(X_test_std)
 
         accuracy = accuracy_score(y_pred, y_test)
         precision = precision_score(y_pred, y_test, average='weighted')
@@ -207,6 +207,6 @@ for name, features in zip(["RF", "SBS"], [rf_features, sbs_features]):
     plt.xlabel('Number of Features Used')
     plt.ylabel('Score')
     plt.legend()
-    plt.savefig(name+"_fs_metrics_svm.png")
+    plt.savefig(name+"_fs_metrics_decisiontree.png")
     plt.show()
-    '''
+    
