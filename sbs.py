@@ -1,13 +1,15 @@
-
 import pandas as pd
 from io import StringIO
 from sklearn.impute import SimpleImputer
 import numpy as np
 from sklearn.preprocessing import LabelEncoder
 from sklearn.preprocessing import OneHotEncoder
+from imblearn.over_sampling import SMOTE
+from sklearn.utils import resample
 from sklearn.compose import ColumnTransformer
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import MinMaxScaler
+from sklearn.neighbors import KNeighborsClassifier
 from sklearn.preprocessing import StandardScaler, Normalizer
 from sklearn.linear_model import LogisticRegression
 import matplotlib.pyplot as plt
@@ -49,6 +51,10 @@ df = df.drop(index=1, columns=['G1', 'G2', 'G3'])
 X = df[[i for i in list(df.columns) if i != "scores"]]
 y = df['scores']
 
+feat_labels = X.columns
+
+oversample = SMOTE()
+X, y = oversample.fit_resample(X, y)
 
 
 X_train, X_test, y_train, y_test =    train_test_split(X, y, 
@@ -56,7 +62,9 @@ X_train, X_test, y_train, y_test =    train_test_split(X, y,
                      random_state=0, 
                      stratify=y)
 
-# # Bringing features onto the same scale
+
+
+# # # Bringing features onto the same scale
 
 mms = MinMaxScaler()
 X_train_norm = mms.fit_transform(X_train)
@@ -65,6 +73,8 @@ X_test_norm = mms.transform(X_test)
 stdsc = StandardScaler()
 X_train_std = stdsc.fit_transform(X_train)
 X_test_std = stdsc.transform(X_test)
+
+
 
 class SBS():
     def __init__(self, estimator, k_features, scoring=accuracy_score,
