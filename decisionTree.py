@@ -146,7 +146,7 @@ for X_train_gs, name in zip([X_train_std, X_train_lda, X_train_pca, X_train_kpca
     print("Accuracy:", gs.best_score_)
     print("Parameters:", gs.best_params_)
 
-gs = GridSearchCV(estimator=SVC(class_weight='balanced'),
+gs = GridSearchCV(estimator=DecisionTreeClassifier(class_weight='balanced'),
                 param_grid=param_grid,
                 scoring='accuracy',
                 cv=2)
@@ -156,9 +156,9 @@ scores = cross_val_score(gs, X_train, y_train,
 
 print("\n\nCV Accuracy: %.3f +/- %.3f" % (np.mean(scores), np.std(scores)))
 
-
+'''
 # Hyper parameters determined from previous grid search
-svm = SVC(C=10, kernel='rbf', gamma=.1)
+tree = DecisionTreeClassifier(C=10, kernel='rbf', gamma=.1)
 
 #Calculate accuracy, precision, recall, and f1-score using each RF and SBS feature selection
 num_features = list(range(2, 44))
@@ -209,3 +209,4 @@ for name, features in zip(["RF", "SBS"], [rf_features, sbs_features]):
     plt.legend()
     plt.savefig(name+"_fs_metrics_svm.png")
     plt.show()
+    '''
