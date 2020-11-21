@@ -58,7 +58,7 @@ Primarily, we did a grid search on all our feature extraction methods to determi
 
 ## Decision Tree:  
 
-We tested Decision Tee thoroughly but were not able to achieve accuracy above 0.6, thus we decided not to pursue this classifier. 
+We tested Decision Tree thoroughly but were not able to achieve accuracy above 0.6, thus we decided not to pursue this classifier. 
 
 
 # Times
