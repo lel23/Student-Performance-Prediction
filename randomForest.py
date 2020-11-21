@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 from sklearn.impute import SimpleImputer
 from sklearn.model_selection import train_test_split, GridSearchCV, cross_val_score
 from sklearn.preprocessing import StandardScaler, Normalizer, MinMaxScaler, MaxAbsScaler
-from sklearn.metrics import classification_report, accuracy_score, precision_score, recall_score, f1_score
+from sklearn.metrics import confusion_matrix, classification_report, accuracy_score, precision_score, recall_score, f1_score
 from sklearn.svm import SVC
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.utils import resample
@@ -16,6 +16,8 @@ from sklearn.ensemble import RandomForestClassifier
 from collections import Counter
 
 from imblearn.over_sampling import SMOTE
+
+from confusion_matrix import plot_confusion_matrix
 
 import sys
 
@@ -48,7 +50,7 @@ y = df['scores']
 
 #https://machinelearningmastery.com/multi-class-imbalanced-classification/
 #Get rid of class imbalance in the target feature by oversampling
-oversample = SMOTE(random_state=0)
+oversample = SMOTE(random_state=1)
 X, y = oversample.fit_resample(X, y)
 
 
@@ -118,12 +120,12 @@ X_test_lda = lda.transform(X_test_norm)
 
 #Grid search to determine which hyper parameters are best
 '''
-param_range = [90]
+param_range = [150]
 
 
 param_grid = [{'n_estimators':param_range,
                'criterion':['gini'],
-               'max_depth':range(10,11),
+               'max_depth':range(17,18),
                'random_state':range(0,150)}]
 
 
@@ -151,11 +153,11 @@ scores = cross_val_score(gs, X_train, y_train,
                         scoring='accuracy', cv=5)
 
 print("\n\nCV Accuracy: %.3f +/- %.3f" % (np.mean(scores), np.std(scores)))
-'''
 
+'''
 # Hyper parameters determined from previous grid search
-rf = RandomForestClassifier(n_estimators = 90, criterion = 'gini', 
-                            max_depth = 13, random_state = 6)
+rf = RandomForestClassifier(n_estimators = 150, criterion = 'gini', 
+                            max_depth = 17, random_state = 121)
 
 #Calculate accuracy, precision, recall, and f1-score using each RF and SBS feature selection
 num_features = list(range(2, 44))
@@ -211,4 +213,35 @@ for name, features in zip(["RF", "SBS"], [rf_features, sbs_features]):
     plt.legend()
     plt.savefig(name+"_fs_metrics_randomforest.png")
     plt.show()
-    
+   
+#Create final model and confusion matrix
+X_train_new = X_train[X_train.columns.intersection(rf_features)]
+X_test_new = X_test[X_test.columns.intersection(rf_features)]
+
+X_train_std = stdsc.fit_transform(X_train_new)
+X_test_std = stdsc.transform(X_test_new)
+
+rf.fit(X_train_std, y_train)
+y_pred = rf.predict(X_test_std)
+
+print("Metrics for final model:\n\n")
+
+accuracy = accuracy_score(y_pred, y_test)
+precision = precision_score(y_pred, y_test, average='weighted')
+recall = recall_score(y_pred, y_test, average='weighted')
+f1 = f1_score(y_pred, y_test, average='weighted')
+
+print("Accuracy:", accuracy)
+print("Precision:", precision)
+print("Recall:", recall)
+print("F1-Score:", f1)
+
+
+cnf_matrix = confusion_matrix(y_test, y_pred, labels=list(range(5)))
+np.set_printoptions(precision=2)
+
+plt.figure()
+plot_confusion_matrix(cnf_matrix, classes=['F', 'D', 'C', 'B', 'A'], title='Random Forest Confusion Matrix')
+plt.savefig('confusion_matrix_randomforest.png')
+plt.show()
+
