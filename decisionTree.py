@@ -216,8 +216,8 @@ for name, features in zip(["RF", "SBS"], [rf_features, sbs_features]):
 
 
 #Create final model and confusion matrix
-X_train_new = X_train[X_train.columns.intersection(rf_features[:18])]
-X_test_new = X_test[X_test.columns.intersection(rf_features[:18])]
+X_train_new = X_train[X_train.columns.intersection(rf_features[:42])]
+X_test_new = X_test[X_test.columns.intersection(rf_features[:42])]
 
 X_train_std = stdsc.fit_transform(X_train_new)
 X_test_std = stdsc.transform(X_test_new)
