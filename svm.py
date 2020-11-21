@@ -53,7 +53,6 @@ X, y = oversample.fit_resample(X, y)
 
 
 #list of features in order of importance determined by SBS feature selection
-
 sbs_features = ['sex', 'age', 'address', 'famsize', 'Pstatus', 'Medu', 'Fedu',
        'traveltime', 'studytime', 'failures', 'schoolsup', 'famsup', 'paid',
        'activities', 'higher', 'internet', 'romantic', 'famrel', 'freetime',
@@ -70,7 +69,7 @@ rf_features = ['absences', 'health', 'Medu', 'freetime', 'age', 'goout', 'famrel
                'Mjob_services', 'address', 'Pstatus', 'reason_reputation', 'schoolsup',
                'Fjob_services', 'guardian_father', 'reason_home', 'school', 'Mjob_teacher', 
                'Mjob_at_home', 'Mjob_health', 'Fjob_teacher', 'reason_other', 'Fjob_at_home', 
-               'higher', 'guardian_other', 'Fjob_health']      
+               'higher', 'guardian_other', 'Fjob_health']         
 
 
 
