@@ -51,6 +51,16 @@ For the **Principal Component Analysis (PCA)**, it is recommended that one-hot e
 
 The goal of performing **Linear Discriminant Analysis (LDA)** is to both increase the computational efficiency and reduce the chances of overfitting the model to the testing set. Additionally, LDA assumes that the data is normally distributed, so we decided to scale the data using the Normalizer from the sklearn API before performing LDA on the dataset. For this LDA, we chose to do it with the first two components so that it could be visualized, even though we could hypothetically use up to 3 (the sklearn API says that n_components should be strictly less than the number of classes - 1, which for us would be 4). When we start applying models to our data, we will try to use LDA with more than 3 components. The decision region plot that LDA produces does not separate the data effectively, but this is most likely because we are only using 2 components. Again, the performance will most likely improve when we use more components. It is also possible that there are different covariances between our classes, which is another assumption that LDA makes that might not necessarily be true.
 
+
+## Random Forest: 
+
+Primarily, we did a grid search on all our feature extraction methods to determine which one performed the best, which ended up being no feature extraction by a significant margin. Then, we did a couple more grid searches to determine the best parameters for this model, eventually landing on 90 estimators, gini criterion, max depth of 13 and a random_state of 6. Now, upon testing this model on varying numbers of features (as seen by the graphs provided), we figured out that RF performed better than SBS in terms of metrics. Lastly, we were able to see that the model achieved a best accuracy of roughly 0.83 with 38 features and at the same time achieved a CV validation set accuracy of 0.75 (+- 0.3), thus showing us that this model is not overfit on the dataset. It must be noted that there is still a possibility for further tuning that may be able to increase this accuracy score and the other metrics (all currently above 0.8 in this listed best case), but these would be very minor adjustments. 
+
+## Decision Tree:  
+
+We tested Decision Tee thoroughly but were not able to achieve accuracy above 0.6, thus we decided not to pursue this classifier. 
+
+
 # Times
 SVM: ~9:23.55
 Logreg: ~8:07.08
