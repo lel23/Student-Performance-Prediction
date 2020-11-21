@@ -144,7 +144,7 @@ NB = GaussianNB()
 
 #Calculate accuracy, precision, recall, and f1-score using each RF and SBS feature selection
 num_features = list(range(3, 44))
-for name, features in zip(["RF", "SBS"], [rf_features, sbs_features]):
+for name, features in zip(["RF"], [rf_features]):
     print("\n\n" + name + " Feature Selection")
     accuracy_list = []
     precision_list = []
@@ -198,14 +198,21 @@ for name, features in zip(["RF", "SBS"], [rf_features, sbs_features]):
 
 
 #Create final model and confusion matrix
-X_train_new = X_train[X_train.columns.intersection(rf_features[:18])]
-X_test_new = X_test[X_test.columns.intersection(rf_features[:18])]
+X_train_new = X_train[X_train.columns.intersection(rf_features[:33])]
+X_test_new = X_test[X_test.columns.intersection(rf_features[:33])]
 
-X_train_std = stdsc.fit_transform(X_train_new)
-X_test_std = stdsc.transform(X_test_new)
+norm = Normalizer()
+X_train_norm = norm.fit_transform(X_train_new)
+X_test_norm = norm.transform(X_test_new)
 
-NB.fit(X_train_std, y_train)
-y_pred = NB.predict(X_test_std)
+lda = LDA(n_components=3)
+X_train_lda = lda.fit_transform(X_train_norm, y_train)
+X_test_lda = lda.transform(X_test_norm)
+print("\n\nNumber of features:", num)
+
+NB.fit(X_train_lda, y_train)
+y_pred = NB.predict(X_test_lda)
+
 
 print("Metrics for final model:\n\n")
 
