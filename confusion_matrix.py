@@ -9,7 +9,6 @@ def plot_confusion_matrix(cm, classes,
     """
     import itertools
     cm = cm / 54.0
-    #np.divide(cm, 54, casting='unsafe', out=cm)
     print(cm)
 
 
