@@ -121,14 +121,14 @@ X_test_lda = lda.transform(X_test_norm)
 
 
 #Grid search to determine which hyper parameters are best
-
-param_range = [10,20,30,40,50,60,70,80,90,100,110,120 ]
+'''
+param_range = [90]
 
 
 param_grid = [{'n_estimators':param_range,
-               'criterion':['gini', 'entropy'],
-               'max_depth': range(3,8),
-               'random_state':range(0,10)}]
+               'criterion':['gini'],
+               'max_depth':range(10,11),
+               'random_state':range(0,150)}]
 
 
 gs = GridSearchCV(estimator=RandomForestClassifier(class_weight='balanced'), 
@@ -140,7 +140,7 @@ gs = GridSearchCV(estimator=RandomForestClassifier(class_weight='balanced'),
 
 
 #grid search for each feature extraction method
-for X_train_gs, name in zip([X_train_std, X_train_lda, X_train_pca, X_train_kpca], ["No Feature Extraction", "LDA", "PCA", "KPCA"]):
+for X_train_gs, name in zip([X_train_std], ["No Feature Extraction"]):
     print("\n\nGrid search for", name)
     gs = gs.fit(X_train_gs, y_train)
     print("Accuracy:", gs.best_score_)
@@ -155,10 +155,11 @@ scores = cross_val_score(gs, X_train, y_train,
                         scoring='accuracy', cv=5)
 
 print("\n\nCV Accuracy: %.3f +/- %.3f" % (np.mean(scores), np.std(scores)))
-
 '''
+
 # Hyper parameters determined from previous grid search
-rf = RandomForestClassifier()
+rf = RandomForestClassifier(n_estimators = 90, criterion = 'gini', 
+                            max_depth = 13, random_state = 6)
 
 #Calculate accuracy, precision, recall, and f1-score using each RF and SBS feature selection
 num_features = list(range(2, 44))
@@ -191,6 +192,11 @@ for name, features in zip(["RF", "SBS"], [rf_features, sbs_features]):
         print("Precision:", precision)
         print("Recall:", recall)
         print("F1-Score:", f1)
+        
+        scores = cross_val_score(rf, X_train_std, y_train,
+                        scoring='accuracy', cv=5)
+
+        print("\n\nCV Accuracy: %.3f +/- %.3f" % (np.mean(scores), np.std(scores)))
 
         accuracy_list.append(accuracy)
         precision_list.append(precision)
@@ -209,4 +215,4 @@ for name, features in zip(["RF", "SBS"], [rf_features, sbs_features]):
     plt.legend()
     plt.savefig(name+"_fs_metrics_randomforest.png")
     plt.show()
-    '''
+    
