@@ -48,32 +48,28 @@ y = df['scores']
 
 #https://machinelearningmastery.com/multi-class-imbalanced-classification/
 #Get rid of class imbalance in the target feature by oversampling
-oversample = SMOTE()
+oversample = SMOTE(random_state=0)
 X, y = oversample.fit_resample(X, y)
 
 
 
 #list of features in order of importance determined by SBS feature selection
-
 sbs_features = ['sex', 'age', 'address', 'famsize', 'Pstatus', 'Medu', 'Fedu',
-       'traveltime', 'studytime', 'failures', 'schoolsup', 'paid',
-       'activities', 'nursery', 'higher', 'internet', 'romantic', 'famrel',
-       'goout', 'Dalc', 'Walc', 'health', 'absences', 'Mjob_at_home',
-       'Mjob_health', 'Mjob_services', 'Mjob_teacher', 'Fjob_at_home',
-       'Fjob_health', 'Fjob_other', 'Fjob_services', 'reason_home',
-       'guardian_father']
-
+       'traveltime', 'studytime', 'failures', 'schoolsup', 'famsup', 'paid',
+       'activities', 'higher', 'internet', 'romantic', 'famrel', 'freetime',
+       'goout', 'Dalc', 'health', 'Mjob_at_home', 'Mjob_health', 'Mjob_other',
+       'Mjob_services', 'Fjob_at_home', 'Fjob_teacher', 'reason_course',
+       'reason_home', 'reason_other', 'reason_reputation', 'guardian_mother']
 
 #list of features in order of importance determined by RF feature selection
-rf_features = ['school', 'sex', 'age', 'address', 'famsize', 'Pstatus', 'Medu', 'Fedu',
-       'traveltime', 'studytime', 'failures', 'schoolsup', 'famsup', 'paid',
-       'activities', 'nursery', 'higher', 'internet', 'romantic', 'famrel',
-       'freetime', 'goout', 'Dalc', 'Walc', 'health', 'absences',
-       'Mjob_at_home', 'Mjob_health', 'Mjob_other', 'Mjob_services',
-       'Mjob_teacher', 'Fjob_at_home', 'Fjob_health', 'Fjob_other',
-       'Fjob_services', 'Fjob_teacher', 'reason_course', 'reason_home',
-       'reason_other', 'reason_reputation', 'guardian_father',
-       'guardian_mother', 'guardian_other']         
+rf_features = ['absences', 'health', 'Medu', 'freetime', 'age', 'goout', 'famrel', 
+               'Fedu', 'Walc', 'studytime', 'nursery', 'failures', 'Mjob_other',                      
+               'famsup', 'paid', 'Fjob_other', 'sex', 'famsize', 'guardian_mother', 
+               'activities', 'traveltime', 'Dalc', 'romantic', 'reason_course', 'internet',
+               'Mjob_services', 'address', 'Pstatus', 'reason_reputation', 'schoolsup',
+               'Fjob_services', 'guardian_father', 'reason_home', 'school', 'Mjob_teacher', 
+               'Mjob_at_home', 'Mjob_health', 'Fjob_teacher', 'reason_other', 'Fjob_at_home', 
+               'higher', 'guardian_other', 'Fjob_health']         
 
 
 
