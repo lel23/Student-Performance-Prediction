@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 from sklearn.impute import SimpleImputer
 from sklearn.model_selection import train_test_split, GridSearchCV, cross_val_score
 from sklearn.preprocessing import StandardScaler, Normalizer, MinMaxScaler, MaxAbsScaler
-from sklearn.metrics import classification_report, accuracy_score, precision_score, recall_score, f1_score
+from sklearn.metrics import confusion_matrix, accuracy_score, precision_score, recall_score, f1_score
 from sklearn.svm import SVC
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.utils import resample
@@ -15,6 +15,8 @@ from sklearn.discriminant_analysis import LinearDiscriminantAnalysis as LDA
 from collections import Counter
 
 from imblearn.over_sampling import SMOTE
+
+from confusion_matrix import plot_confusion_matrix
 
 import sys
 
@@ -41,7 +43,6 @@ df['scores'] = np.where(df['scores'].between(16, 21), 4, df['scores'])
 df['scores'] = df['scores'].astype(np.int)
 
 df = df.drop(index=1, columns=['G1', 'G2', 'G3'])
-
 X = df[[i for i in list(df.columns) if i != "scores"]]
 y = df['scores']
 
@@ -49,7 +50,6 @@ y = df['scores']
 #Get rid of class imbalance in the target feature by oversampling
 oversample = SMOTE(random_state=0)
 X, y = oversample.fit_resample(X, y)
-
 
 
 #list of features in order of importance determined by SBS feature selection
@@ -205,3 +205,35 @@ for name, features in zip(["RF", "SBS"], [rf_features, sbs_features]):
     plt.legend()
     plt.savefig(name+"_fs_metrics_svm.png")
     plt.show()
+
+
+#Create final model and confusion matrix
+X_train_new = X_train[X_train.columns.intersection(rf_features[:18])]
+X_test_new = X_test[X_test.columns.intersection(rf_features[:18])]
+
+X_train_std = stdsc.fit_transform(X_train_new)
+X_test_std = stdsc.transform(X_test_new)
+
+svm.fit(X_train_std, y_train)
+y_pred = svm.predict(X_test_std)
+
+print("Metrics for final model:\n\n")
+
+accuracy = accuracy_score(y_pred, y_test)
+precision = precision_score(y_pred, y_test, average='weighted')
+recall = recall_score(y_pred, y_test, average='weighted')
+f1 = f1_score(y_pred, y_test, average='weighted')
+
+print("Accuracy:", accuracy)
+print("Precision:", precision)
+print("Recall:", recall)
+print("F1-Score:", f1)
+
+
+cnf_matrix = confusion_matrix(y_test, y_pred, labels=list(range(5)))
+np.set_printoptions(precision=2)
+
+plt.figure()
+plot_confusion_matrix(cnf_matrix, classes=['F', 'D', 'C', 'B', 'A'], title='SVM Confusion Matrix')
+plt.savefig('confusion_matrix_svm.png')
+plt.show()
