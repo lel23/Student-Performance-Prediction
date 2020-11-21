@@ -53,7 +53,7 @@ y = df['scores']
 
 feat_labels = X.columns
 
-oversample = SMOTE()
+oversample = SMOTE(random_state=0)
 X, y = oversample.fit_resample(X, y)
 
 
