@@ -9,12 +9,15 @@ import matplotlib.pyplot as plt
 from mlxtend.plotting import scatterplotmatrix
 import numpy as np
 import seaborn as sns
+from imblearn.over_sampling import SMOTE
+from sklearn.utils import resample
 from mlxtend.plotting import heatmap
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.preprocessing import StandardScaler
 from sklearn.feature_selection import SelectFromModel
 import sys
 from sklearn.model_selection import train_test_split
+from collections import Counter
 
 df = pd.read_csv('student-mat-edited.csv')
 
@@ -44,6 +47,9 @@ df = df.drop(index=1, columns=['G1', 'G2', 'G3'])
 X = df[[i for i in list(df.columns) if i != 'scores']]
 y = df['scores']
 feat_labels = X.columns
+
+oversample = SMOTE()
+X, y = oversample.fit_resample(X, y)
 
 """
 Random Forest Feature Selection
@@ -95,6 +101,6 @@ for f in range(X_selected.shape[1]):
 #Correlation heatmap
 cols.append("scores")
 cm = np.corrcoef(df[cols].values.T)
-hm = heatmap(cm, row_names=cols, column_names=cols)
+hm = heatmap(cm, row_names=cols, column_names=cols, figsize=(10, 8))
+plt.savefig("corr_matrix.png")
 plt.show()
-
