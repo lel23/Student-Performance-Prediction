@@ -55,23 +55,23 @@ X, y = oversample.fit_resample(X, y)
 
 
 #list of features in order of importance determined by SBS feature selection
-sbs_features = ['age', 'address', 'famsize', 'Medu', 'Fedu', 'traveltime', 'studytime',
-       'failures', 'famsup', 'paid', 'activities', 'nursery', 'higher',
-       'internet', 'romantic', 'famrel', 'freetime', 'goout', 'Dalc', 'Walc',
-       'health', 'absences', 'Mjob_health', 'Mjob_other', 'Mjob_services',
-       'Fjob_at_home', 'Fjob_health', 'Fjob_other', 'Fjob_services',
-       'reason_other', 'guardian_father', 'guardian_mother', 'scores']
+sbs_features = ['sex', 'age', 'address', 'famsize', 'Pstatus', 'Medu', 'Fedu',
+       'traveltime', 'studytime', 'failures', 'schoolsup', 'famsup', 'paid',
+       'activities', 'higher', 'internet', 'romantic', 'famrel', 'freetime',
+       'goout', 'Dalc', 'health', 'Mjob_at_home', 'Mjob_health', 'Mjob_other',
+       'Mjob_services', 'Fjob_at_home', 'Fjob_teacher', 'reason_course',
+       'reason_home', 'reason_other', 'reason_reputation', 'guardian_mother']
 
 
 #list of features in order of importance determined by RF feature selection
-rf_features = ['failures', 'absences', 'Walc', 'schoolsup', 'Mjob_services', 'health', 'famrel', 
-               'paid', 'famsize', 'Fedu', 'studytime', 'school', 'Dalc',                      
-               'nursery', 'Fjob_services', 'age', 'traveltime', 'guardian_other', 'activities', 
-               'address', 'Fjob_at_home', 'Fjob_teacher', 'Medu', 'Mjob_at_home', 'sex',
-               'guardian_father', 'reason_reputation', 'Pstatus', 'reason_other', 'reason_home',
-               'reason_course', 'famsup', 'Fjob_other', 'Mjob_health', 'Fjob_health', 
-               'higher', 'internet', 'romantic', 'Mjob_teacher', 'freetime', 
-               'guardian_other', 'Mjob_other','goout']      
+rf_features = ['absences', 'health', 'Medu', 'freetime', 'age', 'goout', 'famrel', 
+               'Fedu', 'Walc', 'studytime', 'nursery', 'failures', 'Mjob_other',                      
+               'famsup', 'paid', 'Fjob_other', 'sex', 'famsize', 'guardian_mother', 
+               'activities', 'traveltime', 'Dalc', 'romantic', 'reason_course', 'internet',
+               'Mjob_services', 'address', 'Pstatus', 'reason_reputation', 'schoolsup',
+               'Fjob_services', 'guardian_father', 'reason_home', 'school', 'Mjob_teacher', 
+               'Mjob_at_home', 'Mjob_health', 'Fjob_teacher', 'reason_other', 'Fjob_at_home', 
+               'higher', 'guardian_other', 'Fjob_health']      
          
 
 
@@ -120,7 +120,7 @@ X_test_lda = lda.transform(X_test_norm)
 
 
 #Grid search to determine which hyper parameters are best
-
+'''
 param_range = [3, 4, 5, 6]
 
 
@@ -153,13 +153,13 @@ scores = cross_val_score(gs, X_train, y_train,
                         scoring='accuracy', cv=5)
 
 print("\n\nCV Accuracy: %.3f +/- %.3f" % (np.mean(scores), np.std(scores)))
-
+'''
 
 # Hyper parameters determined from previous grid search
-tree = DecisionTreeClassifier(criterion  = 'gini', max_depth = 6, random_state = 8)
+tree = DecisionTreeClassifier(criterion  = 'entropy', max_depth = 4, random_state = 0)
 
 #Calculate accuracy, precision, recall, and f1-score using each RF and SBS feature selection
-num_features = list(range(2, 44))
+num_features = list(range(3, 44))
 for name, features in zip(["RF", "SBS"], [rf_features, sbs_features]):
     print("\n\n" + name + " Feature Selection")
     accuracy_list = []
@@ -172,13 +172,18 @@ for name, features in zip(["RF", "SBS"], [rf_features, sbs_features]):
         X_train_new = X_train[X_train.columns.intersection(features[:num])]
         X_test_new = X_test[X_test.columns.intersection(features[:num])]
        
-        X_train_std = stdsc.fit_transform(X_train_new)
-        X_test_std = stdsc.transform(X_test_new)
+        norm = Normalizer()
+        X_train_norm = norm.fit_transform(X_train_new)
+        X_test_norm = norm.transform(X_test_new)
+    
+        lda = LDA(n_components=3)
+        X_train_lda = lda.fit_transform(X_train_norm, y_train)
+        X_test_lda = lda.transform(X_test_norm)
 
         print("\n\nNumber of features:", num)
 
-        tree.fit(X_train_std, y_train)
-        y_pred = tree.predict(X_test_std)
+        tree.fit(X_train_lda, y_train)
+        y_pred = tree.predict(X_test_lda)
 
         accuracy = accuracy_score(y_pred, y_test)
         precision = precision_score(y_pred, y_test, average='weighted')
@@ -211,8 +216,8 @@ for name, features in zip(["RF", "SBS"], [rf_features, sbs_features]):
 
 
 #Create final model and confusion matrix
-X_train_new = X_train[X_train.columns.intersection(rf_features[:23])]
-X_test_new = X_test[X_test.columns.intersection(rf_features[:23])]
+X_train_new = X_train[X_train.columns.intersection(rf_features[:18])]
+X_test_new = X_test[X_test.columns.intersection(rf_features[:18])]
 
 X_train_std = stdsc.fit_transform(X_train_new)
 X_test_std = stdsc.transform(X_test_new)
