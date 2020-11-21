@@ -48,6 +48,7 @@ X = df[[i for i in list(df.columns) if i != 'scores']]
 y = df['scores']
 
 # fixing class imbalance
+#https://machinelearningmastery.com/multi-class-imbalanced-classification/
 oversample = SMOTE(random_state=0)
 X, y = oversample.fit_resample(X, y)
 
