@@ -1,3 +1,4 @@
+from confusion_matrix import plot_confusion_matrix
 from imblearn.over_sampling import SMOTE
 import numpy as np
 import matplotlib.pyplot as plt
@@ -6,7 +7,7 @@ from sklearn.decomposition import PCA, KernelPCA
 from sklearn.discriminant_analysis import LinearDiscriminantAnalysis as LDA
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.impute import SimpleImputer
-from sklearn.metrics import classification_report, accuracy_score, precision_score, recall_score, f1_score
+from sklearn.metrics import confusion_matrix, classification_report, accuracy_score, precision_score, recall_score, f1_score
 from sklearn.model_selection import train_test_split, GridSearchCV, cross_val_score
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.preprocessing import StandardScaler, Normalizer, MinMaxScaler, MaxAbsScaler
@@ -40,7 +41,7 @@ y = df['scores']
 
 #https://machinelearningmastery.com/multi-class-imbalanced-classification/
 #Get rid of class imbalance in the target feature by oversampling
-oversample = SMOTE(randomm_state=0)
+oversample = SMOTE(random_state=0)
 X, y = oversample.fit_resample(X, y)
 
 #list of features in order of importance determined by SBS feature selection
@@ -134,7 +135,7 @@ scores = cross_val_score(gs, X_train, y_train,
 print("\n\nCV Accuracy: %.3f +/- %.3f" % (np.mean(scores), np.std(scores)))
 
 # Hyper parameters determined from previous grid search
-lr = KNeighborsClassifier(algorithm='ball_tree',leaf_size=10,metric='manhattan',
+knn = KNeighborsClassifier(algorithm='ball_tree',leaf_size=10,metric='manhattan',
                           n_neighbors=17, weights='distance')
 
 #Calculate accuracy, precision, recall, and f1-score using each RF and SBS feature selection
@@ -159,8 +160,8 @@ for name, features in zip(["RF", "SBS"], [rf_features, sbs_features]):
 
         print("\n\nNumber of features:", num)
 
-        lr.fit(X_train_lda, y_train)
-        y_pred = lr.predict(X_test_lda)
+        knn.fit(X_train_lda, y_train)
+        y_pred = knn.predict(X_test_lda)
 
         accuracy = accuracy_score(y_pred, y_test)
         precision = precision_score(y_pred, y_test, average='weighted')
@@ -189,3 +190,35 @@ for name, features in zip(["RF", "SBS"], [rf_features, sbs_features]):
     plt.legend()
     plt.savefig(name+"_fs_metrics_knn.png")
     plt.show()
+
+
+#Create final model and confusion matrix
+X_train_new = X_train[X_train.columns.intersection(rf_features[:18])]
+X_test_new = X_test[X_test.columns.intersection(rf_features[:18])]
+
+X_train_std = stdsc.fit_transform(X_train_new)
+X_test_std = stdsc.transform(X_test_new)
+
+knn.fit(X_train_std, y_train)
+y_pred = knn.predict(X_test_std)
+
+print("Metrics for final model:\n\n")
+
+accuracy = accuracy_score(y_pred, y_test)
+precision = precision_score(y_pred, y_test, average='weighted')
+recall = recall_score(y_pred, y_test, average='weighted')
+f1 = f1_score(y_pred, y_test, average='weighted')
+
+print("Accuracy:", accuracy)
+print("Precision:", precision)
+print("Recall:", recall)
+print("F1-Score:", f1)
+
+
+cnf_matrix = confusion_matrix(y_test, y_pred, labels=list(range(5)))
+np.set_printoptions(precision=2)
+
+plt.figure()
+plot_confusion_matrix(cnf_matrix, classes=['F', 'D', 'C', 'B', 'A'], title='KNN Confusion Matrix')
+plt.savefig('confusion_matrix_knn.png')
+plt.show()
