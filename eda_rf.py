@@ -13,7 +13,7 @@ from imblearn.over_sampling import SMOTE
 from sklearn.utils import resample
 from mlxtend.plotting import heatmap
 from sklearn.ensemble import RandomForestClassifier
-from sklearn.preprocessing import StandardScaler
+from sklearn.preprocessing import StandardScaler, MinMaxScaler
 from sklearn.feature_selection import SelectFromModel
 import sys
 from sklearn.model_selection import train_test_split
@@ -46,59 +46,61 @@ df = df.drop(index=1, columns=['G1', 'G2', 'G3'])
 #separate into features and target
 X = df[[i for i in list(df.columns) if i != 'scores']]
 y = df['scores']
-feat_labels = X.columns
 
-oversample = SMOTE()
+# fixing class imbalance
+oversample = SMOTE(random_state=0)
 X, y = oversample.fit_resample(X, y)
 
-"""
-Random Forest Feature Selection
-"""
+# splitting training and test data
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=0, stratify=y)
+
+
+# min-max scaling
+mms = MinMaxScaler()
+X_train_norm = mms.fit_transform(X_train)
+X_test_norm = mms.transform(X_test)
+
+# standardizing the data
 stdsc = StandardScaler()
-X = stdsc.fit_transform(X)
+X_train_std = stdsc.fit_transform(X_train)
+X_test_std = stdsc.transform(X_test)
 
-forest = RandomForestClassifier(n_estimators=500,
-                                random_state=1)
 
-forest.fit(X, y)
+# Random Forest Feature Selection 
+
+feat_labels = X.columns
+
+forest = RandomForestClassifier(n_estimators=500, random_state=0) 
+forest.fit(X_train, y_train)
 importances = forest.feature_importances_
-
 indices = np.argsort(importances)[::-1]
-
-for f in range(X.shape[1]):
-    print("%2d) %-*s %f" % (f + 1, 30, 
-                            feat_labels[indices[f]], 
-                            importances[indices[f]]))
-
+for f in range(X_train.shape[1]): 
+    print("%2d) %-*s %f" % (f + 1, 30, feat_labels[indices[f]], importances[indices[f]])) 
 plt.title('Feature Importance')
-plt.bar(range(X.shape[1]), 
-        importances[indices],
-        align='center')
-
-plt.xticks(range(X.shape[1]), 
-           feat_labels[indices], rotation=90)
-plt.xlim([-1, X.shape[1]])
+plt.bar(range(X_train.shape[1]), importances[indices], align='center')
+plt.xticks(range(X_train.shape[1]), feat_labels[indices], rotation=90)
+plt.xlim([-1, X_train.shape[1]]) 
 plt.tight_layout()
 plt.savefig("rf_selection.png")
 plt.show()
 
-sfm = SelectFromModel(forest, prefit=True)
-X_selected = sfm.transform(X)
-print('Number of features that meet this threshold criterion:', 
-      X_selected.shape[1])
-print("Threshold %f" % np.mean(importances))
+
+sfm = SelectFromModel(forest, threshold=0.04, prefit=True)
+X_selected = sfm.transform(X_train)
+print('Number of features that meet this threshold', 'criterion:', X_selected.shape[1])
 
 
-# Now, let's print the  features that met the threshold criterion for feature selection that we set earlier (note that this code snippet does not appear in the actual book but was added to this notebook later for illustrative purposes):
+
+# # Now, let's print the  features that met the threshold criterion for feature selection that we set earlier (note that this code snippet does not appear in the actual book but was added to this notebook later for illustrative purposes):
 cols = []
 for f in range(X_selected.shape[1]):
-    cols.append(feat_labels[indices[f]])    
-    print("%2d) %-*s %f" % (f + 1, 30, 
-                            feat_labels[indices[f]], 
-                            importances[indices[f]]))
+     cols.append(feat_labels[indices[f]])    
+     print("%2d) %-*s %f" % (f + 1, 30, 
+                             feat_labels[indices[f]], 
+                             importances[indices[f]]))
 
 
-#Correlation heatmap
+# Correlation heatmap
 cols.append("scores")
 cm = np.corrcoef(df[cols].values.T)
 hm = heatmap(cm, row_names=cols, column_names=cols, figsize=(10, 8))
