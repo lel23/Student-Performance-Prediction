@@ -46,22 +46,23 @@ X, y = oversample.fit_resample(X, y)
 
 #list of features in order of importance determined by SBS feature selection
 sbs_features = ['sex', 'age', 'address', 'famsize', 'Pstatus', 'Medu', 'Fedu',
-       'traveltime', 'studytime', 'failures', 'schoolsup', 'famsup', 'paid',
-       'activities', 'higher', 'internet', 'romantic', 'famrel', 'freetime',
-       'goout', 'Dalc', 'health', 'Mjob_at_home', 'Mjob_health', 'Mjob_other',
-       'Mjob_services', 'Fjob_at_home', 'Fjob_teacher', 'reason_course',
-       'reason_home', 'reason_other', 'reason_reputation', 'guardian_mother']
+       'traveltime', 'failures', 'schoolsup', 'paid', 'activities', 'nursery',
+       'higher', 'romantic', 'freetime', 'goout', 'Dalc', 'Walc', 'health',
+       'absences', 'Mjob_at_home', 'Mjob_other', 'Mjob_services',
+       'Mjob_teacher', 'Fjob_at_home', 'Fjob_health', 'Fjob_services',
+       'reason_home', 'reason_reputation', 'guardian_mother', 'guardian_other',
+       'scores']
 
 
 #list of features in order of importance determined by RF feature selection
-rf_features = ['absences', 'health', 'Medu', 'freetime', 'age', 'goout', 'famrel', 
-               'Fedu', 'Walc', 'studytime', 'nursery', 'failures', 'Mjob_other',                      
-               'famsup', 'paid', 'Fjob_other', 'sex', 'famsize', 'guardian_mother', 
-               'activities', 'traveltime', 'Dalc', 'romantic', 'reason_course', 'internet',
-               'Mjob_services', 'address', 'Pstatus', 'reason_reputation', 'schoolsup',
-               'Fjob_services', 'guardian_father', 'reason_home', 'school', 'Mjob_teacher', 
-               'Mjob_at_home', 'Mjob_health', 'Fjob_teacher', 'reason_other', 'Fjob_at_home', 
-               'higher', 'guardian_other', 'Fjob_health']      
+rf_features = ['Fjob_teacher', 'sex', 'higher', 'guardian_other', 'Medu', 'Mjob_services', 'nursery', 
+               'guardian_father', 'studytime', 'freetime', 'famrel', 'internet', 'activities',                      
+               'Pstatus', 'Mjob_health', 'absences', 'guardian_mother', 'Walc', 'health', 
+               'Dalc', 'address', 'age', 'goout', 'school', 'Mjob_at_home',
+               'Fedu', 'famsize', 'paid', 'Fjob_at_home', 'traveltime',
+               'famsup', 'Fjob_health', 'romantic', 'reason_reputation', 'reason_home', 
+               'failures', 'reason_other', 'Mjob_other', 'Fjob_other', 'reason_course', 
+               'Fjob_services', 'Mjob_teacher', 'schoolsup']      
          
 
 #split into testing and training set
@@ -193,8 +194,8 @@ for name, features in zip(["RF", "SBS"], [rf_features, sbs_features]):
 
 
 #Create final model and confusion matrix
-X_train_new = X_train[X_train.columns.intersection(rf_features[:18])]
-X_test_new = X_test[X_test.columns.intersection(rf_features[:18])]
+X_train_new = X_train[X_train.columns.intersection(rf_features)]
+X_test_new = X_test[X_test.columns.intersection(rf_features)]
 
 X_train_std = stdsc.fit_transform(X_train_new)
 X_test_std = stdsc.transform(X_test_new)
