@@ -5,8 +5,16 @@
 - Leslie Le
 - Joe Salerno
 
+Before running any of the files, be sure to run:
+
+```
+pip install imblearn
+```
+
+in your terminal or command line.
 
 # Times
+
 SVM: ~9:23.55
 Logreg: ~8:07.08
 KNN: ~14:03.58
