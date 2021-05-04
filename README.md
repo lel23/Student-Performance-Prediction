@@ -22,6 +22,17 @@ You can read another paper that conducted research on the same data: [Predict-Sc
 If that link did not work, you can find the file in the repository under *Predict-School-Performance.html* or follow this link: [https://github.com/lel23/Student-Performance-Prediction/blob/master/Predict-School-Performance.pdf](https://github.com/lel23/Student-Performance-Prediction/blob/master/Predict-School-Performance.pdf)
 
 ------------
+
+## Things to be Improved
+- Number of trees for RFFS is missing
+- Random state is not a hyperparameter, as such, it should not be adjusted to attain higher scores in the metrics.
+- Cross validation should contain some stratified sampling to ensure balance within each split
+- Try regularizing the data with L1 or L2 regularization and testing the models with corresponding data
+- Go more in-depth about what was done with Grid Search
+- Explain what information we attained from the C values of each model
+- Try different ranges for cross validation
+
+------------
 Before running any of the files, be sure to install:
 
 - imblearn
